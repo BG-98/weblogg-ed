@@ -1,0 +1,73 @@
+
+{% extends "blog/base.html" %}
+{% block content %}
+        <article class="media content-section">
+            {% if object.category == 'secret' %}
+              <img class="rounded-circle article-img" src="/media/default.jpeg" alt="">
+            {% else %}
+               <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}" alt="">
+            {% endif %}
+                <div class="media-body">
+                  <div class="article-metadata">
+                    {% if object.category != 'secret' %}
+                      <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+                    {% endif %}  
+                    <small class="text-muted">{{ object.datep|date:"F d, Y" }}</small>
+                    <!-- <br>  -->
+                    {% if object.author == user %}
+                    <div>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update</a>
+                        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete</a>
+                   </div>
+                    {% endif %}
+                  </div>
+                  <h2 class="article-title">{{ object.title }}</h2> 
+                  {% if object.image_url != '' %}
+                    <div>
+                      <img class="article-img" style="width: 100%; height: 10%" src=" {{ object.image_url}}" alt="">
+                      <br><br>
+                    </div>
+                  {% endif %}
+                  <p class="article-content">{{ object.content }}</p>
+
+                </div>
+        </article>
+<div class="row">
+
+    <div>
+        <a class=" btn btn-secondary btn-sm mt-1 mb-1 comment" href="{% url 'add_comment_to_post' pk=post.pk %}">Leave a Reply</a>
+        </div>
+
+      <div class="col-sm-3">
+      {% if request.user.is_authenticated %}
+      <form action="{% url 'like_post' %}" method="POST">
+        {% csrf_token %}
+        {% if is_liked %}
+          <button type="submit" name="post_id" value="{{ post.id }}" class="col-sm-5 btn btn-secondary btn-sm mt-1 mb-1 comment">Unlike</button>
+        {% else %}
+          <button type="submit" name="post_id" value="{{ post.id }}" class="col-sm-5 btn btn-secondary btn-sm mt-1 mb-1 comment">Like{{ object.likes.count | pluralize }} ({{ object.likes.count }})</button>
+        {% endif %}  
+      </form>
+      {% endif %}
+      </div>
+        </div>
+        <hr>
+
+        {% for comment in post.comments.all %}
+            <div class="comment ">
+                <img class="rounded-circle article-img" style="width:5%; height:5%" src="{{ user.profile.image.url }}" alt="">
+                <a class="mr-2" href="{% url 'user-posts' user.username %}">{{ user.username }}</a>
+                <div>
+                <p class="ml-5">{{ comment.text|linebreaks }}</p>
+                </div>
+            </div>
+            <hr>
+        {% empty %}
+            <p>No comments here yet :(</p>
+        {% endfor %}
+
+
+        
+ {% endblock content %} 
+
+ 
